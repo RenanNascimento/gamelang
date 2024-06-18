@@ -1,5 +1,6 @@
 import mss
 import pyautogui
+import pytesseract
 
 import cv2 as cv
 import numpy as np
@@ -17,12 +18,16 @@ def update_screen(recording_window):
     with mss.mss() as sct:
         while True:
             screenshot = sct.grab(recording_window)
-            screenshot = np.array(screenshot)
+            screenshot_np = np.array(screenshot)
 
-            small = cv.resize(screenshot, (0, 0), fx=0.5, fy=0.5)
+            small = cv.resize(screenshot_np, (0, 0), fx=0.5, fy=0.5)
             cv.imshow("Computer Vision", small)
 
             key = cv.waitKey(1)
+
+            if key == ord('o'):
+                text = pytesseract.image_to_string(screenshot_np)
+                print(f"Text: {text}\n")
             if key == ord('q'):
                 break
 
