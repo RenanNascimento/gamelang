@@ -1,3 +1,4 @@
+import os
 import mss
 import pyautogui
 import pytesseract
@@ -5,6 +6,15 @@ import pytesseract
 import cv2 as cv
 import numpy as np
 import time
+
+from openai import OpenAI
+from dotenv import load_dotenv
+
+load_dotenv()
+
+client = OpenAI(
+    api_key=os.environ.get("OPENAI_API_KEY"),
+)
 
 def update_screen(recording_window):
 
@@ -28,6 +38,15 @@ def update_screen(recording_window):
             if key == ord('o'):
                 text = pytesseract.image_to_string(screenshot_np)
                 print(f"Text: {text}\n")
+                completion = client.chat.completions.create(
+                    model="gpt-3.5-turbo",
+                    messages=[
+                        {"role": "system",
+                         "content": "You are a poetic assistant, skilled in explaining complex programming concepts with creative flair."},
+                        {"role": "user", "content": "Compose a poem that explains the concept of recursion in programming."}
+                    ]
+                )
+                print(completion.choices[0].message)
             if key == ord('q'):
                 break
 
