@@ -6,6 +6,8 @@ import cv2 as cv
 import numpy as np
 import time
 
+import ollama
+
 def update_screen(recording_window):
 
     print("PIL Screen Capture Speed Test")
@@ -27,13 +29,16 @@ def update_screen(recording_window):
 
             if key == ord('o'):
                 text = pytesseract.image_to_string(screenshot_np)
+                response = ollama.generate(model='llama3',
+                                           prompt=f'The following text is written with french erros, please fix it: {text}')
                 print(f"Text: {text}\n")
+                print(response['response'])
             if key == ord('q'):
                 break
 
             elapsed_time = time.time() - t0
             avg_fps = (n_frames / elapsed_time)
-            print(f"Average FPS: {str(avg_fps)}")
+            #print(f"Average FPS: {str(avg_fps)}")
             n_frames += 1
 
 
