@@ -1,3 +1,4 @@
+import os
 import mss
 import pyautogui
 import pytesseract
@@ -8,11 +9,20 @@ import time
 
 import ollama
 
+from elevenlabs import play
+from elevenlabs.client import ElevenLabs
+from dotenv import load_dotenv
+
+load_dotenv()
+
+client = ElevenLabs(
+  api_key=os.getenv("ELEVEN_LABS_API_KEY")
+)
+
 def update_screen(recording_window):
 
     print("PIL Screen Capture Speed Test")
     print(f"Screen Resolution: f{recording_window}")
-    #{'top': 187, 'left': 562, 'width': 660, 'height': 457}
 
     t0 = time.time()
     n_frames = 1
@@ -30,15 +40,21 @@ def update_screen(recording_window):
             if key == ord('o'):
                 text = pytesseract.image_to_string(screenshot_np)
                 response = ollama.generate(model='llama3',
-                                           prompt=f'The following text is written with french erros, please fix it: {text}')
-                print(f"Text: {text}\n")
-                print(response['response'])
+                                           prompt=f'This text \'{text}\' is written with french erros, please fix it and provide only the correct text and it\'s translation to brasilian portuguese without any additional information')
+                print(f"Text OCR >>>>>: {text}\n")
+                print(f"Response llama >>>>: {response['response']}")
+
+                audio = client.generate(
+                    text=response['response'],
+                    model="eleven_multilingual_v2"
+                )
+                play(audio)
             if key == ord('q'):
                 break
 
             elapsed_time = time.time() - t0
             avg_fps = (n_frames / elapsed_time)
-            #print(f"Average FPS: {str(avg_fps)}")
+            print(f"Average FPS: {str(avg_fps)}")
             n_frames += 1
 
 
